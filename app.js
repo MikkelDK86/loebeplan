@@ -21,7 +21,7 @@ const PROGRAM = [
   ]}
 ];
 
-const state = {week:1, session:0, steps:[], stepIndex:0, remaining:0, timer:null, paused:false, elapsed:0, sound:true};
+const state = {week:1,session:0,steps:[],stepIndex:0,remaining:0,timer:null,paused:false,elapsed:0,sound:true,inCountdown:false,countdown:10,wakeLock:null};
 const $ = id => document.getElementById(id);
 const key = (w,s) => `run-${w}-${s}`;
 const completed = () => JSON.parse(localStorage.getItem("completedRuns") || "[]");
@@ -68,11 +68,12 @@ function openDetail(wi,si){
 }
 function startWorkout(){
   state.steps=buildSteps(state.week,state.session);state.stepIndex=0;state.remaining=state.steps[0].seconds;state.elapsed=0;state.paused=false;
-  $("workoutTitle").textContent=`Uge ${state.week} · Pas ${state.session+1}`;show("workoutScreen");updateWorkout();clearInterval(state.timer);state.timer=setInterval(tick,1000);
+  $("workoutTitle").textContent=`Uge ${state.week} · Pas ${state.session+1}`;show("workoutScreen");lockScreen();updateWorkout();clearInterval(state.timer);state.timer=setInterval(tick,1000);
 }
 function tick(){
-  if(state.paused)return;
+  if(state.paused||state.inCountdown)return;
   state.elapsed++;state.remaining--;
+  if(state.remaining===10&&state.stepIndex<state.steps.length-1){beginCountdown();return}
   if(state.remaining<=0){
     beep();state.stepIndex++;
     if(state.stepIndex>=state.steps.length){finishWorkout();return}
@@ -81,6 +82,14 @@ function tick(){
   updateWorkout();
 }
 function beep(){if(!state.sound)return;try{const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value=720;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}}
+
+async function lockScreen(){try{if("wakeLock"in navigator)state.wakeLock=await navigator.wakeLock.request("screen")}catch(e){}}
+async function unlockScreen(){try{if(state.wakeLock){await state.wakeLock.release();state.wakeLock=null}}catch(e){}}
+function beginCountdown(){state.inCountdown=true;state.countdown=10;const n=state.steps[state.stepIndex+1];$("countdownTitle").textContent=`Uge ${state.week} · Pas ${state.session+1}`;$("countdownNext").textContent=`${n.type==="run"?"🏃":"🚶"} ${n.label}`;$("countdownOverlay").classList.add("active");renderCountdown();if(state.sound&&"speechSynthesis"in window){const u=new SpeechSynthesisUtterance(n.label==="LØB"?"Om 10 sekunder: løb.":"Om 10 sekunder: gang.");u.lang="da-DK";speechSynthesis.cancel();speechSynthesis.speak(u)}}
+function renderCountdown(){const c=2*Math.PI*92;$("ringValue").style.strokeDashoffset=c*(1-state.countdown/10);$("countdownNumber").textContent=state.countdown}
+function countdownTick(){if(!state.inCountdown||state.paused)return;state.countdown--;renderCountdown();if(state.countdown<=3)beep();if(state.countdown<=0){state.inCountdown=false;$("countdownOverlay").classList.remove("active");advanceStep()}}
+setInterval(countdownTick,1000);
+function advanceStep(){beep();state.stepIndex++;if(state.stepIndex>=state.steps.length){finishWorkout();return}state.remaining=state.steps[state.stepIndex].seconds;updateWorkout()}
 function updateWorkout(){
   const step=state.steps[state.stepIndex], next=state.steps[state.stepIndex+1];
   $("phaseLabel").textContent=step.label;$("timer").textContent=fmt(state.remaining);$("repeatLabel").textContent=step.repeat;
@@ -99,7 +108,7 @@ function finishWorkout(){
 function updateStats(){
   const a=completed();$("completedCount").textContent=a.length;
   let mins=0;a.forEach(k=>{const [_,w,s]=k.split("-").map(Number),p=PROGRAM[w-1]?.sessions[s];if(p)mins+=p.run*p.reps/60});
-  $("totalRunMinutes").textContent=Math.round(mins);
+  $("totalRunMinutes").textContent=Math.round(mins);$("homeProgressText").textContent=`${a.length} / 12 pas`;$("homeProgressFill").style.width=`${a.length/12*100}%`;
 }
 function nextWorkout(){
   for(let w=1;w<=4;w++)for(let s=0;s<3;s++)if(!isDone(w,s))return [w,s];
@@ -109,7 +118,7 @@ function nextWorkout(){
 $("homeStart").onclick=startWorkout;$("detailStart").onclick=startWorkout;
 $("pauseBtn").onclick=()=>{state.paused=!state.paused;updateWorkout()};
 $("soundToggle").onclick=()=>{state.sound=!state.sound;$("soundToggle").textContent=state.sound?"🔊":"🔇"};
-$("stopWorkout").onclick=()=>{clearInterval(state.timer);show("homeScreen")};
+$("stopWorkout").onclick=()=>{clearInterval(state.timer);state.inCountdown=false;$("countdownOverlay").classList.remove("active");unlockScreen();show("homeScreen")};
 $("finishBtn").onclick=()=>show("homeScreen");
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{show(t.dataset.screen);if(t.dataset.screen==="programScreen")renderProgram();if(t.dataset.screen==="statsScreen")updateStats()});
 document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show(b.dataset.back));
@@ -120,3 +129,7 @@ const hp=PROGRAM[nw-1].sessions[ns];$("homeWorkoutSummary").textContent=`${Math.
 renderProgram();updateStats();
 
 if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+
+$("cancelCountdown").onclick=()=>{clearInterval(state.timer);state.inCountdown=false;$("countdownOverlay").classList.remove("active");unlockScreen();show("homeScreen")};
+$("countdownSound").onclick=()=>{state.sound=!state.sound;$("countdownSound").textContent=state.sound?"🔊":"🔇"};
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!state.wakeLock&&document.getElementById("workoutScreen").classList.contains("active"))lockScreen()});

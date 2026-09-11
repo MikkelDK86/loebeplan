@@ -24,6 +24,7 @@
         </div>
         <div class="shoe-mark" aria-hidden="true">👟</div>
       </div>
+      <div class="progress-card"><div class="progress-top"><strong>Din fremgang</strong><span id="homeProgressText">0 / 12 pas</span></div><div class="progress-line"><div id="homeProgressFill"></div></div></div>
       <div class="today-card">
         <div class="card-kicker">Næste træning</div>
         <h2 id="homeWorkoutTitle">Uge 1 · Pas 1</h2>
@@ -67,7 +68,12 @@
       </div>
     </section>
 
-    <nav class="tabbar">
+    <div class="countdown-overlay" id="countdownOverlay">
+<header class="workout-header"><button class="round-icon" id="cancelCountdown">×</button><strong id="countdownTitle">Uge 1 · Pas 1</strong><button class="round-icon" id="countdownSound">🔊</button></header>
+<div class="workout-progress"><div id="countdownProgress"></div></div>
+<div class="countdown-main"><p class="small">SKIFT OM</p><h2>10 sekunder</h2>
+<div class="countdown-ring"><svg viewBox="0 0 220 220"><circle class="ring-bg" cx="110" cy="110" r="92"/><circle class="ring-value" id="ringValue" cx="110" cy="110" r="92"/></svg><strong id="countdownNumber">10</strong></div>
+<div class="next-preview"><span>Næste</span><strong id="countdownNext">🏃 LØB</strong></div><p class="prepare">Gør dig klar 💪</p></div></div><nav class="tabbar">
       <button data-screen="homeScreen" class="tab active">⌂<span>Hjem</span></button>
       <button data-screen="programScreen" class="tab">▤<span>Program</span></button>
       <button data-screen="statsScreen" class="tab">⌁<span>Statistik</span></button>
