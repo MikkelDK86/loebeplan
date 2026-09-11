@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Løbeplan">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <title>Mikkels Løbeplan</title>
+</head>
+<body>
+  <main id="app">
+    <section class="screen active" id="homeScreen">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">DIN PLAN</p>
+          <h1>Mikkels<br>Løbeplan</h1>
+          <p class="tagline">Små skridt.<br>Store resultater.</p>
+        </div>
+        <div class="shoe-mark" aria-hidden="true">👟</div>
+      </div>
+      <div class="today-card">
+        <div class="card-kicker">Næste træning</div>
+        <h2 id="homeWorkoutTitle">Uge 1 · Pas 1</h2>
+        <p id="homeWorkoutSummary">5 min gang · 1 min løb / 2 min gang × 6 · 5 min gang</p>
+        <button class="primary" id="homeStart">▶ Start træning</button>
+      </div>
+    </section>
+
+    <section class="screen" id="programScreen">
+      <header class="page-header"><h2>Program</h2><p>Din vej fra 0 → 30 min</p></header>
+      <div id="programList"></div>
+    </section>
+
+    <section class="screen" id="detailScreen">
+      <header class="page-header row"><button class="icon-btn" data-back="programScreen">‹</button><div><h2 id="detailTitle">Uge 1 · Pas 1</h2><p id="detailSubtitle">Lær kroppen at løbe</p></div></header>
+      <div class="detail-card" id="detailContent"></div>
+      <div class="tip">💡 <span>Løb i et roligt tempo. Det skal føles let – også selvom det går langsomt.</span></div>
+      <button class="primary" id="detailStart">▶ Start træning</button>
+    </section>
+
+    <section class="screen workout-screen" id="workoutScreen">
+      <header class="workout-header"><button class="close-btn" id="stopWorkout">×</button><strong id="workoutTitle">Uge 1 · Pas 1</strong><button class="sound-btn" id="soundToggle">🔊</button></header>
+      <div class="interval-panel" id="intervalPanel">
+        <div class="phase-label" id="phaseLabel">GANG</div>
+        <div class="timer" id="timer">05:00</div>
+        <div class="repeat" id="repeatLabel"></div>
+      </div>
+      <div class="next-card"><span>Næste</span><strong id="nextLabel">LØB · 01:00</strong></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <button class="pause-btn" id="pauseBtn">Ⅱ</button>
+      <div class="pause-label" id="pauseLabel">Pause</div>
+    </section>
+
+    <section class="screen" id="completeScreen">
+      <div class="complete">
+        <div class="check">✓</div>
+        <h1>Godt gået!</h1>
+        <p id="completeText">Du har gennemført Uge 1 · Pas 1</p>
+        <div class="stats" id="stats"></div>
+        <button class="primary" id="finishBtn">Færdig</button>
+      </div>
+    </section>
+
+    <nav class="tabbar">
+      <button data-screen="homeScreen" class="tab active">⌂<span>Hjem</span></button>
+      <button data-screen="programScreen" class="tab">▤<span>Program</span></button>
+      <button data-screen="statsScreen" class="tab">⌁<span>Statistik</span></button>
+      <button data-screen="moreScreen" class="tab">•••<span>Mere</span></button>
+    </nav>
+
+    <section class="screen placeholder" id="statsScreen">
+      <header class="page-header"><h2>Statistik</h2><p>Din fremgang, enkelt fortalt.</p></header>
+      <div class="stats-card"><div class="big-number" id="completedCount">0</div><div>gennemførte pas</div></div>
+      <div class="stats-card"><div class="big-number" id="totalRunMinutes">0</div><div>minutter løb</div></div>
+    </section>
+
+    <section class="screen placeholder" id="moreScreen">
+      <header class="page-header"><h2>Mere</h2></header>
+      <div class="menu-card">
+        <div>🏃 Gode råd <span>›</span></div>
+        <div>♡ Tempo og pulszoner <span>›</span></div>
+        <div>⚙ Indstillinger <span>›</span></div>
+        <div>ⓘ Om <span>›</span></div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
